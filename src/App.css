@@ -468,16 +468,82 @@ body {
 .CodeMirror-vscrollbar::-webkit-scrollbar { width: 10px; }
 .CodeMirror-vscrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 5px; }
 
+/* Remote Cursor */
+.remote-cursor {
+  position: relative;
+  border-left: 2px solid var(--accent-primary);
+  display: inline-block;
+  height: 1.2em;
+  z-index: 10;
+}
+
+.remote-cursor-tooltip {
+  position: absolute;
+  top: -1.5em;
+  left: 0;
+  background: var(--accent-primary);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 11;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 /* File Preview Modal Overrides */
 .filePreview {
   background: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(8px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 .filePreviewContainer {
   background: var(--bg-gradient-1);
   border: 1px solid var(--glass-border);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   border-radius: 12px;
+  max-width: 80%;
+  max-height: 80%;
+  overflow: auto;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.filePreviewContainer h3 {
+  margin: 0;
+}
+.filePreviewContainer pre {
+  margin: 0;
+  padding: 15px;
+  border-radius: 8px;
+  max-height: 50vh;
+  overflow: auto;
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.filePreviewContainer > div {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.filePreviewContainer button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 .filePreviewContainer h3 {
   border-bottom-color: rgba(255, 255, 255, 0.1);
@@ -503,5 +569,83 @@ body {
   border-color: rgba(255, 255, 255, 0.1);
 }
 #cancelBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Code Runner Modal */
+.codeRunnerPopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.codeRunnerContainer {
+  background: var(--bg-gradient-1);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.codeRunnerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.codeRunnerHeader h3 {
+  margin: 0;
+}
+
+.codeRunnerHeader div {
+  display: flex;
+  gap: 10px;
+}
+
+.codeRunnerBody {
+  padding: 20px;
+  overflow: auto;
+  flex: 1;
+}
+
+.codeRunnerBody pre {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+.codeRunnerBody.errorText pre {
+  color: var(--accent-danger);
+}
+
+.btn.retryBtn {
+  background: var(--accent-primary);
+  color: #fff;
+}
+.btn.retryBtn:hover {
+  background: var(--accent-primary-hover);
+}
+
+.btn.closeBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn.closeBtn:hover {
   background: rgba(255, 255, 255, 0.05);
 }

@@ -75,25 +75,12 @@ import "codemirror/theme/zenburn.css";
 // modes
 import "codemirror/mode/clike/clike";
 import "codemirror/mode/css/css";
-import "codemirror/mode/dart/dart";
-import "codemirror/mode/django/django";
-import "codemirror/mode/dockerfile/dockerfile";
-import "codemirror/mode/go/go";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import "codemirror/mode/javascript/javascript";
-import "codemirror/mode/jsx/jsx";
 import "codemirror/mode/markdown/markdown";
 import "codemirror/mode/php/php";
 import "codemirror/mode/python/python";
-import "codemirror/mode/r/r";
-import "codemirror/mode/rust/rust";
-import "codemirror/mode/ruby/ruby";
-import "codemirror/mode/sass/sass";
-import "codemirror/mode/shell/shell";
 import "codemirror/mode/sql/sql";
-import "codemirror/mode/swift/swift";
-import "codemirror/mode/xml/xml";
-import "codemirror/mode/yaml/yaml";
 
 // features
 import "codemirror/addon/edit/closetag";
@@ -113,6 +100,7 @@ const Editor = React.forwardRef(({ socketRef, socket, roomId, onCodeChange }, re
 
   // Keep track of the latest onCodeChange function to avoid closure stale state
   const onCodeChangeRef = useRef(onCodeChange);
+  const cursorsRef = useRef({});
   useEffect(() => {
     onCodeChangeRef.current = onCodeChange;
   }, [onCodeChange]);
@@ -155,6 +143,16 @@ const Editor = React.forwardRef(({ socketRef, socket, roomId, onCodeChange }, re
           });
         }
       });
+
+      editorRef.current.on("cursorActivity", (instance) => {
+        if (socketRef.current) {
+          const cursor = instance.getCursor();
+          socketRef.current.emit(ACTIONS.CURSOR_CHANGE, {
+            roomId,
+            cursor,
+          });
+        }
+      });
     }
     init();
     // We explicitly disable the linter here because we ONLY want this to run once.
@@ -181,14 +179,54 @@ const Editor = React.forwardRef(({ socketRef, socket, roomId, onCodeChange }, re
 
     const handleRemoteCodeChange = ({ code }) => {
       if (code !== null && editorRef.current) {
-        editorRef.current.setValue(code);
+        // Prevent recursive triggers
+        const currentCode = editorRef.current.getValue();
+        if (code !== currentCode) {
+            editorRef.current.setValue(code);
+        }
       }
     };
 
+    const handleRemoteCursorChange = ({ socketId, cursor, username }) => {
+      if (!editorRef.current) return;
+
+      if (cursorsRef.current[socketId]) {
+        cursorsRef.current[socketId].clear();
+      }
+
+      const cursorNode = document.createElement("span");
+      cursorNode.className = "remote-cursor";
+
+      const tooltip = document.createElement("span");
+      tooltip.className = "remote-cursor-tooltip";
+      tooltip.innerText = username || "Anonymous";
+      cursorNode.appendChild(tooltip);
+
+      const bookmark = editorRef.current.setBookmark(cursor, {
+        widget: cursorNode,
+        insertLeft: true,
+      });
+
+      cursorsRef.current[socketId] = bookmark;
+
+      // Automatically hide tooltip after 2s
+      setTimeout(() => {
+        if (tooltip && tooltip.parentNode) {
+            tooltip.style.opacity = "0";
+        }
+      }, 2000);
+    };
+
     socket.on(ACTIONS.CODE_CHANGE, handleRemoteCodeChange);
+    socket.on(ACTIONS.CURSOR_CHANGE, handleRemoteCursorChange);
 
     return () => {
       socket.off(ACTIONS.CODE_CHANGE, handleRemoteCodeChange);
+      socket.off(ACTIONS.CURSOR_CHANGE, handleRemoteCursorChange);
+      
+      // Cleanup cursors
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      Object.values(cursorsRef.current).forEach(bookmark => bookmark.clear());
     };
   }, [socket]);
 
