@@ -31,6 +31,7 @@ const EditorPage = () => {
   const username = location.state?.username;
 
   const [filePreview, setFilePreview] = useState(false);
+  const [showCodeRunner, setShowCodeRunner] = useState(false);
   const [fileContent, setFileContent] = useState("");
   const fileInputRef = useRef(null);
   const editorInstanceRef = useRef(null);
@@ -233,6 +234,9 @@ const EditorPage = () => {
         </div>
 
         <div className="actionButtons">
+          <button className="btn runBtn" onClick={() => setShowCodeRunner(true)} style={{ background: 'var(--accent-success)', color: '#022c22', marginBottom: '10px' }}>
+            Run Code
+          </button>
           <input type="file" accept=".js,.py,.java,.cpp,.c,.txt,.html,.css" style={{ display: "none" }} id="fileUpload" onChange={handleFileUpload} ref={fileInputRef} />
           <button className="btn uploadFileBtn" onClick={() => document.getElementById("fileUpload").click()}>
             Upload File
@@ -244,15 +248,6 @@ const EditorPage = () => {
             Leave Room
           </button>
         </div>
-
-        {
-          filePreview && <FilePreview
-            setFilePreview={setFilePreview}
-            fileContent={fileContent}
-            resetFileInput={resetFileInput}
-            onAppend={handleAppendCode}
-            onReplace={handleReplaceCode} />
-        }
       </div>
 
       <div className="editorWrap">
@@ -266,6 +261,26 @@ const EditorPage = () => {
             codeRef.current = code;
           }}
         />
+
+        {
+          filePreview && <FilePreview
+            setFilePreview={setFilePreview}
+            fileContent={fileContent}
+            resetFileInput={resetFileInput}
+            onAppend={handleAppendCode}
+            onReplace={handleReplaceCode} />
+        }
+
+        {
+          showCodeRunner && <CodeRunner
+            code={codeRef.current}
+            language={lang}
+            onClose={() => setShowCodeRunner(false)}
+          />
+        }
+
+
+
       </div>
     </div>
   );
