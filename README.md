@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🖥️ CodeCast — Realtime Collaborative Code Editor
 
 <div align="center">
@@ -170,3 +171,7 @@ Contributions are welcome!
 ## 📄 License
 
 This project is open-source. Feel free to use, modify, and distribute it.
+=======
+# CodeCast
+Real-time collaborative code editor with live preview
+>>>>>>> becef15fbe8d3721f6f5fdcd65da0e6598334330
